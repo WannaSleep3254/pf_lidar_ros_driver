@@ -6,6 +6,7 @@
 #include <rcutils/logging.h>
 #include "pf_driver/pf/pf_interface.h"
 #include "pf_driver/ros/scan_publisher.h"
+#include "pf_driver/ros/hmi_image_listener.h"
 
 bool PFInterface::init()
 {
