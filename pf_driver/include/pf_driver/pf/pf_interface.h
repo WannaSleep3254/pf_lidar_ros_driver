@@ -57,7 +57,7 @@ private:
   PipelinePtr get_pipeline(std::string packet_type);
   std::shared_ptr<Reader<PFPacket>> reader_;
 
-  //std::shared_ptr<std::mutex> config_mutex_;
+  // std::shared_ptr<std::mutex> config_mutex_;
   void on_shutdown();
 };
 

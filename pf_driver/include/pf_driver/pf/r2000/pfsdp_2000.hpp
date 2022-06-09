@@ -5,8 +5,7 @@
 class PFSDP_2000 : public PFSDPBase
 {
 public:
-  PFSDP_2000(std::shared_ptr<PFSDPBase> base)
-    : PFSDPBase(base)
+  PFSDP_2000(std::shared_ptr<PFSDPBase> base) : PFSDPBase(base)
   {
     declare_specific_parameters();
   }
@@ -70,31 +69,27 @@ public:
   {
     bool successful = PFSDPBase::reconfig_callback_impl(parameters);
 
-    for(const auto &parameter : parameters)
+    for (const auto& parameter : parameters)
     {
-      if(parameter.get_name() == "samples_per_scan" ||
-         parameter.get_name() == "hmi_display_mode" ||
-         parameter.get_name() == "hmi_language" ||
-         parameter.get_name() == "hmi_button_lock" ||
-         parameter.get_name() == "hmi_parameter_lock" ||
-         parameter.get_name() == "hmi_static_text_1" ||
-         parameter.get_name() == "hmi_static_text_2" ||
-         parameter.get_name() == "user_notes")
+      if (parameter.get_name() == "samples_per_scan" || parameter.get_name() == "hmi_display_mode" ||
+          parameter.get_name() == "hmi_language" || parameter.get_name() == "hmi_button_lock" ||
+          parameter.get_name() == "hmi_parameter_lock" || parameter.get_name() == "hmi_static_text_1" ||
+          parameter.get_name() == "hmi_static_text_2" || parameter.get_name() == "user_notes")
       {
         set_parameter({ KV(parameter.get_name(), parameter.value_to_string()) });
       }
-      else if(parameter.get_name() == "watchdog")
+      else if (parameter.get_name() == "watchdog")
       {
         config_->watchdog = parameter.as_bool();
       }
-      else if(parameter.get_name() == "watchdog_timeout")
+      else if (parameter.get_name() == "watchdog_timeout")
       {
         config_->watchdogtimeout = parameter.as_int();
       }
-      else if(parameter.get_name() == "packet_type")
+      else if (parameter.get_name() == "packet_type")
       {
         std::string packet_type = parameter.as_string();
-        if(packet_type == "A" || packet_type == "B" || packet_type == "C")
+        if (packet_type == "A" || packet_type == "B" || packet_type == "C")
         {
           config_->packet_type = packet_type;
         }
@@ -103,7 +98,7 @@ public:
           successful = false;
         }
       }
-      else if(parameter.get_name() == "skip_scans")
+      else if (parameter.get_name() == "skip_scans")
       {
         config_->skip_scans = parameter.as_int();
       }

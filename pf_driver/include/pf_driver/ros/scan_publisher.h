@@ -14,10 +14,8 @@
 class ScanPublisher : public PFPacketReader
 {
 public:
-  ScanPublisher(std::shared_ptr<ScanConfig> config,
-                std::shared_ptr<ScanParameters> params,
-                std::shared_ptr<std::mutex> config_mutex,
-                std::shared_ptr<rclcpp::Node> node)
+  ScanPublisher(std::shared_ptr<ScanConfig> config, std::shared_ptr<ScanParameters> params,
+                std::shared_ptr<std::mutex> config_mutex, std::shared_ptr<rclcpp::Node> node)
     : config_(config), params_(params), config_mutex_(config_mutex), node_(node)
   {
   }
@@ -56,12 +54,9 @@ protected:
 class ScanPublisherR2000 : public ScanPublisher
 {
 public:
-  ScanPublisherR2000(std::shared_ptr<ScanConfig> config,
-                     std::shared_ptr<ScanParameters> params,
-                     const std::string &scan_topic,
-                     const std::string &frame_id,
-                     std::shared_ptr<std::mutex> config_mutex,
-                     std::shared_ptr<rclcpp::Node> node)
+  ScanPublisherR2000(std::shared_ptr<ScanConfig> config, std::shared_ptr<ScanParameters> params,
+                     const std::string& scan_topic, const std::string& frame_id,
+                     std::shared_ptr<std::mutex> config_mutex, std::shared_ptr<rclcpp::Node> node)
     : ScanPublisher(config, params, config_mutex, node)
   {
     scan_publisher_ = node_->create_publisher<sensor_msgs::msg::LaserScan>(scan_topic, 1);
@@ -88,16 +83,12 @@ private:
 class ScanPublisherR2300 : public ScanPublisher
 {
 public:
-  ScanPublisherR2300(std::shared_ptr<ScanConfig> config,
-                     std::shared_ptr<ScanParameters> params,
-                     std::string scan_topic,
-                     std::string frame_id,
-                     std::shared_ptr<std::mutex> config_mutex,
-                     std::shared_ptr<rclcpp::Node> node)
-    : ScanPublisher(config, params, config_mutex, node),
-      layer_prev_(-1),
-      _tfBuffer(std::make_unique<tf2_ros::Buffer>(node_->get_clock())),
-      _tfListener(std::make_unique<tf2_ros::TransformListener>(*_tfBuffer.get()))
+  ScanPublisherR2300(std::shared_ptr<ScanConfig> config, std::shared_ptr<ScanParameters> params, std::string scan_topic,
+                     std::string frame_id, std::shared_ptr<std::mutex> config_mutex, std::shared_ptr<rclcpp::Node> node)
+    : ScanPublisher(config, params, config_mutex, node)
+    , layer_prev_(-1)
+    , _tfBuffer(std::make_unique<tf2_ros::Buffer>(node_->get_clock()))
+    , _tfListener(std::make_unique<tf2_ros::TransformListener>(*_tfBuffer.get()))
   {
     for (int i = 0; i < 4; i++)
     {

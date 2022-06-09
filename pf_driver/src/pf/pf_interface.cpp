@@ -10,12 +10,12 @@
 bool PFInterface::init()
 {
   protocol_interface_ = std::make_shared<PFSDPBase>(node_);
-  if(!protocol_interface_->init())
+  if (!protocol_interface_->init())
   {
     return false;
   }
 
-  //config_mutex_ = std::make_shared<std::mutex>();
+  // config_mutex_ = std::make_shared<std::mutex>();
 
   // This is the first time ROS communicates with the device
   auto opi = protocol_interface_->get_protocol_info();
@@ -110,24 +110,19 @@ bool PFInterface::handle_version(int major_version, int minor_version)
     expected_dev = "R2000";
     protocol_interface_ = std::make_shared<PFSDP_2000>(protocol_interface_);
     reader_ = std::make_shared<ScanPublisherR2000>(
-                               protocol_interface_->get_scan_config(),
-                               protocol_interface_->get_scan_parameters(),
-                               protocol_interface_->get_topic(),
-                               protocol_interface_->get_frame_id(),
-                               protocol_interface_->get_config_mutex(),
-                               node_);
+        protocol_interface_->get_scan_config(), protocol_interface_->get_scan_parameters(),
+        protocol_interface_->get_topic(), protocol_interface_->get_frame_id(), protocol_interface_->get_config_mutex(),
+        node_);
+    hmi_listener_ = std::make_shared<HmiImageListener>(node_, protocol_interface_);
   }
   else if (major_version == 0 && minor_version == 5)
   {
     expected_dev = "R2300";
     protocol_interface_ = std::make_shared<PFSDP_2300>(protocol_interface_);
     reader_ = std::make_shared<ScanPublisherR2300>(
-                               protocol_interface_->get_scan_config(),
-                               protocol_interface_->get_scan_parameters(),
-                               protocol_interface_->get_topic(),
-                               protocol_interface_->get_frame_id(),
-                               protocol_interface_->get_config_mutex(),
-                               node_);
+        protocol_interface_->get_scan_config(), protocol_interface_->get_scan_parameters(),
+        protocol_interface_->get_topic(), protocol_interface_->get_frame_id(), protocol_interface_->get_config_mutex(),
+        node_);
   }
   else
   {
@@ -213,7 +208,8 @@ std::unique_ptr<Pipeline<PFPacket>> PFInterface::get_pipeline(std::string packet
   {
     return nullptr;
   }
-  writer = std::shared_ptr<Writer<PFPacket>>(new PFWriter<PFPacket>(std::move(transport_), parser, node_->get_logger()));
+  writer =
+      std::shared_ptr<Writer<PFPacket>>(new PFWriter<PFPacket>(std::move(transport_), parser, node_->get_logger()));
   return std::unique_ptr<Pipeline<PFPacket>>(
       new Pipeline<PFPacket>(writer, reader_, std::bind(&PFInterface::on_shutdown, this), node_->get_logger()));
 }

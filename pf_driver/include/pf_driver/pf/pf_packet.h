@@ -9,9 +9,9 @@ class PFPacketReader;
 
 struct PFHeaderMsg
 {
-  // Although this is a very effective method of parsing data, it does not handle platforms when integers endianness
-  // is not the same as the one sent by the scanner
-  #pragma pack(push, pfHeader, 1)
+// Although this is a very effective method of parsing data, it does not handle platforms when integers endianness
+// is not the same as the one sent by the scanner
+#pragma pack(push, pfHeader, 1)
   struct
   {
     uint16_t magic;
@@ -58,7 +58,7 @@ struct PFHeaderMsg
       uint64_t reserved5;
     } r2300;
   } header_specific;
-  #pragma pack(pop, pfHeader)
+#pragma pack(pop, pfHeader)
 };
 
 class PFPacket
@@ -78,7 +78,7 @@ public:
 protected:
   std::tuple<uint16_t, uint32_t> read_header_common(uint8_t* buf)
   {
-    PFHeaderMsg *msg = reinterpret_cast<PFHeaderMsg *>(buf);
+    PFHeaderMsg* msg = reinterpret_cast<PFHeaderMsg*>(buf);
     return std::tuple<uint16_t, uint32_t>(msg->header_common.header_size, msg->header_common.packet_size);
   }
 
@@ -101,7 +101,7 @@ public:
   {
     auto header_common = read_header_common(buf);
 
-    PFHeaderMsg *msg = reinterpret_cast<PFHeaderMsg *>(buf);
+    PFHeaderMsg* msg = reinterpret_cast<PFHeaderMsg*>(buf);
 
     header.header.magic = msg->header_common.magic;
     header.header.packet_type = msg->header_common.packet_type;
@@ -124,8 +124,7 @@ public:
     header.iq_timestamp_raw = msg->header_specific.r2000.iq_timestamp_raw;
     header.iq_timestamp_sync = msg->header_specific.r2000.iq_timestamp_sync;
 
-    return std::tuple<uint16_t, uint32_t, uint16_t>(std::get<0>(header_common),
-                                                    std::get<1>(header_common),
+    return std::tuple<uint16_t, uint32_t, uint16_t>(std::get<0>(header_common), std::get<1>(header_common),
                                                     msg->header_specific.r2000.num_points_packet);
   }
 
@@ -206,7 +205,7 @@ public:
   {
     auto header_common = read_header_common(buf);
 
-    PFHeaderMsg *msg = reinterpret_cast<PFHeaderMsg *>(buf);
+    PFHeaderMsg* msg = reinterpret_cast<PFHeaderMsg*>(buf);
 
     header.header.magic = msg->header_common.magic;
     header.header.packet_type = msg->header_common.packet_type;
@@ -247,8 +246,7 @@ public:
     header.reserved4 = msg->header_specific.r2300.reserved4;
     header.reserved5 = msg->header_specific.r2300.reserved5;
 
-    return std::tuple<uint16_t, uint32_t, uint16_t>(std::get<0>(header_common),
-                                                    std::get<1>(header_common),
+    return std::tuple<uint16_t, uint32_t, uint16_t>(std::get<0>(header_common), std::get<1>(header_common),
                                                     msg->header_specific.r2300.num_points_packet);
   }
 

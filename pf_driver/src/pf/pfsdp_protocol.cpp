@@ -2,7 +2,7 @@
 #include <rcl_interfaces/msg/integer_range.hpp>
 #include "pf_driver/pf/pfsdp_protocol.hpp"
 
-rcl_interfaces::msg::SetParametersResult PFSDPBase::reconfig_callback(const std::vector<rclcpp::Parameter> &parameters)
+rcl_interfaces::msg::SetParametersResult PFSDPBase::reconfig_callback(const std::vector<rclcpp::Parameter>& parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
 
@@ -10,7 +10,7 @@ rcl_interfaces::msg::SetParametersResult PFSDPBase::reconfig_callback(const std:
 
   result.successful = reconfig_callback_impl(parameters);
 
-  if(result.successful)
+  if (result.successful)
   {
     update_scanoutput_config();
   }
@@ -20,51 +20,47 @@ rcl_interfaces::msg::SetParametersResult PFSDPBase::reconfig_callback(const std:
   return result;
 }
 
-bool PFSDPBase::reconfig_callback_impl(const std::vector<rclcpp::Parameter> &parameters)
+bool PFSDPBase::reconfig_callback_impl(const std::vector<rclcpp::Parameter>& parameters)
 {
   bool successful = true;
 
-  for(const auto &parameter : parameters)
+  for (const auto& parameter : parameters)
   {
-    if(parameter.get_name() == "ip_mode" ||
-       parameter.get_name() == "scan_frequency" ||
-       parameter.get_name() == "subnet_mask" ||
-       parameter.get_name() == "gateway" ||
-       parameter.get_name() == "scan_direction" ||
-       parameter.get_name() == "locator_indication" ||
-       parameter.get_name() == "user_tag" ||
-       parameter.get_name() == "operating_mode")
+    if (parameter.get_name() == "ip_mode" || parameter.get_name() == "scan_frequency" ||
+        parameter.get_name() == "subnet_mask" || parameter.get_name() == "gateway" ||
+        parameter.get_name() == "scan_direction" || parameter.get_name() == "locator_indication" ||
+        parameter.get_name() == "user_tag" || parameter.get_name() == "operating_mode")
     {
       set_parameter({ KV(parameter.get_name(), parameter.value_to_string()) });
     }
-    else if(parameter.get_name() == "ip_address")
+    else if (parameter.get_name() == "ip_address")
     {
       info_->hostname = parameter.as_string();
       set_parameter({ KV(parameter.get_name(), parameter.value_to_string()) });
     }
-    else if(parameter.get_name() == "port")
+    else if (parameter.get_name() == "port")
     {
       info_->port = parameter.value_to_string();
     }
-    else if(parameter.get_name() == "transport")
+    else if (parameter.get_name() == "transport")
     {
       // selecting TCP as default if not UDP
       std::string transport_str = parameter.as_string();
       info_->handle_type = transport_str == "udp" ? HandleInfo::HANDLE_TYPE_UDP : HandleInfo::HANDLE_TYPE_TCP;
     }
-    else if(parameter.get_name() == "scan_topic")
+    else if (parameter.get_name() == "scan_topic")
     {
       topic_ = parameter.as_string();
     }
-    else if(parameter.get_name() == "frame_id")
+    else if (parameter.get_name() == "frame_id")
     {
       frame_id_ = parameter.as_string();
     }
-    else if(parameter.get_name() == "start_angle")
+    else if (parameter.get_name() == "start_angle")
     {
       config_->start_angle = parameter.as_double();
     }
-    else if(parameter.get_name() == "max_num_points_scan")
+    else if (parameter.get_name() == "max_num_points_scan")
     {
       config_->max_num_points_scan = parameter.as_int();
     }
@@ -82,13 +78,13 @@ bool PFSDPBase::init()
   declare_critical_parameters();
 
   // Do some config checks
-  if(info_->hostname.empty())
+  if (info_->hostname.empty())
   {
     RCLCPP_ERROR(node_->get_logger(), "Please provide the scanner IP address on parameter 'ip_address'");
     return false;
   }
 
-  if(info_->port.empty())
+  if (info_->port.empty())
   {
     RCLCPP_ERROR(node_->get_logger(), "Please provide the scanner IP port on parameter 'port'");
     return false;
@@ -104,7 +100,8 @@ bool PFSDPBase::init()
   return true;
 }
 
-bool PFSDPBase::check_error(std::map<std::string, std::string> &mp, const std::string &err_code, const std::string &err_text, const std::string &err_http)
+bool PFSDPBase::check_error(std::map<std::string, std::string>& mp, const std::string& err_code,
+                            const std::string& err_text, const std::string& err_http)
 {
   const std::string http_error = mp[err_http];
   const std::string code = mp[err_code];
@@ -142,9 +139,9 @@ void PFSDPBase::declare_common_parameters()
 {
   /*rcl_interfaces::msg::ParameterDescriptor descriptorInitialIpAddress;
   descriptorInitialIpAddress.name = "Initial IP address";
-  descriptorInitialIpAddress.description = "When initiating scan data output, request_handle_udp must be given an IPv4 address and port in order to know where to send scandata to.";
-  node_->declare_parameter<std::string>("address", "", descriptorInitialIpAddress);*/
-
+  descriptorInitialIpAddress.description = "When initiating scan data output, request_handle_udp must be given an IPv4
+  address and port in order to know where to send scandata to."; node_->declare_parameter<std::string>("address", "",
+  descriptorInitialIpAddress);*/
 
   rcl_interfaces::msg::ParameterDescriptor descriptorSubnetMask;
   descriptorSubnetMask.name = "IP netmask";
@@ -181,9 +178,8 @@ void PFSDPBase::declare_common_parameters()
 
 void PFSDPBase::setup_parameters_callback()
 {
-  parameters_handle_ = node_->add_on_set_parameters_callback(std::bind(&PFSDPBase::reconfig_callback,
-                                                                       this,
-                                                                       std::placeholders::_1));
+  parameters_handle_ =
+      node_->add_on_set_parameters_callback(std::bind(&PFSDPBase::reconfig_callback, this, std::placeholders::_1));
 }
 
 void PFSDPBase::declare_critical_parameters()

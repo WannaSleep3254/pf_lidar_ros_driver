@@ -45,8 +45,15 @@ template <typename T>
 class Pipeline
 {
 public:
-  Pipeline(std::shared_ptr<Writer<T>> writer, std::shared_ptr<Reader<T>> reader, std::function<void()> func, rclcpp::Logger logger)
-    : writer_(writer), reader_(reader), shutdown(func), running_(false), shutdown_(false), queue_{ 100 }, logger_(logger)
+  Pipeline(std::shared_ptr<Writer<T>> writer, std::shared_ptr<Reader<T>> reader, std::function<void()> func,
+           rclcpp::Logger logger)
+    : writer_(writer)
+    , reader_(reader)
+    , shutdown(func)
+    , running_(false)
+    , shutdown_(false)
+    , queue_{ 100 }
+    , logger_(logger)
   {
   }
 

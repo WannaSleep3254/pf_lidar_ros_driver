@@ -259,12 +259,12 @@ public:
 
   bool init();
 
-  const std::string &get_topic() const
+  const std::string& get_topic() const
   {
     return topic_;
   }
 
-  const std::string &get_frame_id() const
+  const std::string& get_frame_id() const
   {
     return frame_id_;
   }
@@ -331,7 +331,7 @@ public:
   template <typename... Ts>
   bool set_parameter(const std::initializer_list<param_type> params)
   {
-    if(http_interface)
+    if (http_interface)
     {
       return get_request_bool("set_parameter", { "" }, params);
     }
@@ -456,7 +456,7 @@ public:
 
   void update_scanoutput_config()
   {
-    if(http_interface)
+    if (http_interface)
     {
       param_map_type query = { KV("handle", info_->handle),
                                KV("start_angle", config_->start_angle),
@@ -509,7 +509,9 @@ public:
 
   void declare_common_parameters();
 
-  virtual void declare_specific_parameters() {}
+  virtual void declare_specific_parameters()
+  {
+  }
 
   virtual bool reconfig_callback_impl(const std::vector<rclcpp::Parameter>& parameters);
 

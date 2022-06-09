@@ -71,7 +71,7 @@ void ScanPublisher::to_msg_queue(T& packet, uint16_t layer_idx)
 
     msg.reset(new sensor_msgs::msg::LaserScan());
     msg->header.frame_id.assign(frame_id_);
-    //msg->header.seq = packet.header.header.scan_number;
+    // msg->header.seq = packet.header.header.scan_number;
     msg->scan_time = 1000.0 / packet.header.scan_frequency;
     msg->angle_increment = packet.header.angular_increment / 10000.0 * (M_PI / 180.0);
 
@@ -153,13 +153,12 @@ void ScanPublisherR2300::handle_scan(sensor_msgs::msg::LaserScan::SharedPtr msg,
 {
   publish_scan(msg, layer_idx);
 
-  auto scan_duration = std::chrono::nanoseconds(static_cast<uint64_t>(msg->ranges.size() * msg->time_increment * 1000000000));
+  auto scan_duration =
+      std::chrono::nanoseconds(static_cast<uint64_t>(msg->ranges.size() * msg->time_increment * 1000000000));
 
   sensor_msgs::msg::PointCloud2 c;
-  if(_tfBuffer->canTransform(msg->header.frame_id,
-                             "base_link",
-                             rclcpp::Duration(scan_duration) + msg->header.stamp,
-                             rclcpp::Duration(std::chrono::seconds(1))))
+  if (_tfBuffer->canTransform(msg->header.frame_id, "base_link", rclcpp::Duration(scan_duration) + msg->header.stamp,
+                              rclcpp::Duration(std::chrono::seconds(1))))
   {
     int channelOptions = laser_geometry::channel_option::Intensity;
     projector_.transformLaserScanToPointCloud("base_link", *msg, c, *_tfBuffer, -1.0, channelOptions);

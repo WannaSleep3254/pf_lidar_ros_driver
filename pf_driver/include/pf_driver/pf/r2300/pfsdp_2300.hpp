@@ -5,8 +5,7 @@
 class PFSDP_2300 : public PFSDPBase
 {
 public:
-  PFSDP_2300(std::shared_ptr<PFSDPBase> base)
-    : PFSDPBase(base)
+  PFSDP_2300(std::shared_ptr<PFSDPBase> base) : PFSDPBase(base)
   {
     config_->packet_type = "C1";
 
@@ -74,14 +73,11 @@ private:
   {
     bool successful = PFSDPBase::reconfig_callback_impl(parameters);
 
-    for(const auto &parameter : parameters)
+    for (const auto& parameter : parameters)
     {
-      if(parameter.get_name() == "measure_start_angle" ||
-         parameter.get_name() == "measure_stop_angle" ||
-         parameter.get_name() == "pilot_start_angle" ||
-         parameter.get_name() == "pilot_stop_angle" ||
-         parameter.get_name() == "layer_enable" ||
-         parameter.get_name() == "pilot_laser")
+      if (parameter.get_name() == "measure_start_angle" || parameter.get_name() == "measure_stop_angle" ||
+          parameter.get_name() == "pilot_start_angle" || parameter.get_name() == "pilot_stop_angle" ||
+          parameter.get_name() == "layer_enable" || parameter.get_name() == "pilot_laser")
       {
         set_parameter({ KV(parameter.get_name(), parameter.value_to_string()) });
       }
