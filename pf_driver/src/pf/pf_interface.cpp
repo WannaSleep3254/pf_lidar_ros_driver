@@ -216,7 +216,7 @@ std::unique_ptr<Pipeline<PFPacket>> PFInterface::get_pipeline(std::string packet
 
 void PFInterface::start_watchdog_timer(std::chrono::milliseconds duration)
 {
-  std::chrono::duration feed_time = std::min(duration, std::chrono::milliseconds(std::chrono::seconds(60)));
+  std::chrono::milliseconds feed_time = std::min(duration, std::chrono::milliseconds(std::chrono::seconds(60)));
   watchdog_timer_ = node_->create_wall_timer(feed_time, std::bind(&PFInterface::feed_watchdog, this));
 }
 
