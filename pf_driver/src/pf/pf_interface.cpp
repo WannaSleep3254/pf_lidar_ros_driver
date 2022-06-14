@@ -113,7 +113,6 @@ bool PFInterface::handle_version(int major_version, int minor_version)
         protocol_interface_->get_scan_config(), protocol_interface_->get_scan_parameters(),
         protocol_interface_->get_topic(), protocol_interface_->get_frame_id(), protocol_interface_->get_config_mutex(),
         node_);
-    hmi_listener_ = std::make_shared<HmiImageListener>(node_, protocol_interface_);
   }
   else if (major_version == 0 && minor_version == 5)
   {
