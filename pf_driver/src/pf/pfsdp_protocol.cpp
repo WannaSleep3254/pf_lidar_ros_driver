@@ -58,7 +58,7 @@ bool PFSDPBase::reconfig_callback_impl(const std::vector<rclcpp::Parameter>& par
     }
     else if (parameter.get_name() == "start_angle")
     {
-      config_->start_angle = parameter.as_double();
+      config_->start_angle = ((parameter.as_double() / M_PI) * 180.0) * 10000;
     }
     else if (parameter.get_name() == "max_num_points_scan")
     {
@@ -174,6 +174,16 @@ void PFSDPBase::declare_common_parameters()
   descriptorFrameId.description = "Frame ID in which the LaserScan messages will be published";
   descriptorFrameId.read_only = true;
   node_->declare_parameter<std::string>("frame_id", "scanner", descriptorScanTopic);
+
+  rcl_interfaces::msg::ParameterDescriptor descriptorStartAngle;
+  descriptorFrameId.name = "Start angle";
+  descriptorFrameId.description = "Angle of first scan point for scan data output, in radians";
+  node_->declare_parameter<double>("start_angle", 0.0, descriptorStartAngle);
+
+  rcl_interfaces::msg::ParameterDescriptor descriptorMaxNumPoints;
+  descriptorFrameId.name = "Maximum number of points per scan";
+  descriptorFrameId.description = "Limit number of points in scan data output";
+  node_->declare_parameter<int>("max_num_points_scan", 0, descriptorMaxNumPoints);
 }
 
 void PFSDPBase::setup_parameters_callback()
