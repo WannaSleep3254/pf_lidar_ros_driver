@@ -8,8 +8,6 @@ public:
   PFSDP_2300(std::shared_ptr<PFSDPBase> base) : PFSDPBase(base)
   {
     config_->packet_type = "C1";
-
-    declare_specific_parameters();
   }
 
   virtual std::string get_product()

@@ -7,7 +7,12 @@ class PFSDP_2000 : public PFSDPBase
 public:
   PFSDP_2000(std::shared_ptr<PFSDPBase> base) : PFSDPBase(base)
   {
-    declare_specific_parameters();
+    // Packet type is required before we can acquire a handle
+    rcl_interfaces::msg::ParameterDescriptor descriptorPacketType;
+    descriptorPacketType.name = "Packet type";
+    descriptorPacketType.description = "Packet type for scan data output";
+    descriptorPacketType.read_only = true;
+    node_->declare_parameter<std::string>("packet_type", "C", descriptorPacketType);
   }
 
   virtual std::string get_product()
@@ -29,12 +34,6 @@ public:
 
   void declare_specific_parameters() override
   {
-    rcl_interfaces::msg::ParameterDescriptor descriptorPacketType;
-    descriptorPacketType.name = "Packet type";
-    descriptorPacketType.description = "Packet type for scan data output";
-    descriptorPacketType.read_only = true;
-    node_->declare_parameter<std::string>("packet_type", "C", descriptorPacketType);
-
     rcl_interfaces::msg::ParameterDescriptor descriptorWatchdog;
     descriptorWatchdog.name = "Watchdog";
     descriptorWatchdog.description = "Cease scan data output if watchdog isn't fed in time";
@@ -81,10 +80,13 @@ public:
       else if (parameter.get_name() == "watchdog")
       {
         config_->watchdog = parameter.as_bool();
+        std::string watchdog_str = config_->watchdog ? "on" : "off";
+        set_scanoutput_parameters({ KV(parameter.get_name(), watchdog_str) });
       }
       else if (parameter.get_name() == "watchdog_timeout")
       {
         config_->watchdogtimeout = parameter.as_int();
+        set_scanoutput_parameters({ KV("watchdogtimeout", parameter.value_to_string()) });
       }
       else if (parameter.get_name() == "packet_type")
       {
@@ -97,10 +99,12 @@ public:
         {
           successful = false;
         }
+        set_scanoutput_parameters({ KV(parameter.get_name(), parameter.value_to_string()) });
       }
       else if (parameter.get_name() == "skip_scans")
       {
         config_->skip_scans = parameter.as_int();
+        set_scanoutput_parameters({ KV(parameter.get_name(), parameter.value_to_string()) });
       }
     }
 

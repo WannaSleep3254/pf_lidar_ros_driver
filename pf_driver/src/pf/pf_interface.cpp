@@ -73,6 +73,8 @@ bool PFInterface::init()
     return false;
   }
 
+  protocol_interface_->init_specific();
+
   change_state(PFState::INIT);
   return true;
 }

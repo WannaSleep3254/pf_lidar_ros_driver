@@ -192,35 +192,13 @@ private:
   {
     return get_request(command, json_keys, param_map_type(query.begin(), query.end()));
   }
+
   const std::map<std::string, std::string> get_request(const std::string command,
                                                        std::vector<std::string> json_keys = std::vector<std::string>(),
-                                                       const param_map_type query = param_map_type())
-  {
-    const std::string err_code = "error_code";
-    const std::string err_text = "error_text";
-    const std::string err_http = "error_http";
-    std::vector<std::string> keys = { err_code, err_text };
-    keys.insert(keys.end(), json_keys.begin(), json_keys.end());
-    std::map<std::string, std::string> json_resp = http_interface->get(keys, command, query);
-
-    if (!check_error(json_resp, err_code, err_text, err_http))
-    {
-      return std::map<std::string, std::string>();
-    }
-
-    return json_resp;
-  }
+                                                       const param_map_type query = param_map_type());
 
   bool get_request_bool(const std::string command, std::vector<std::string> json_keys = std::vector<std::string>(),
-                        std::initializer_list<param_type> query = std::initializer_list<param_type>())
-  {
-    std::map<std::string, std::string> resp = get_request(command, json_keys, query);
-    if (resp.empty())
-    {
-      return false;
-    }
-    return true;
-  }
+                        std::initializer_list<param_type> query = std::initializer_list<param_type>());
 
   bool check_error(std::map<std::string, std::string>& mp, const std::string& err_code, const std::string& err_text,
                    const std::string& err_http);
@@ -258,6 +236,12 @@ public:
   }
 
   bool init();
+
+  void init_specific()
+  {
+    declare_specific_parameters();
+    read_scan_parameters();
+  }
 
   const std::string& get_topic() const
   {
@@ -311,24 +295,8 @@ public:
     return true;
   }
 
-  ProtocolInfo get_protocol_info()
-  {
-    ProtocolInfo opi;
-    auto resp = get_request("get_protocol_info", { "protocol_name", "version_major", "version_minor", "commands" });
-    if (resp.empty())
-    {
-      opi.isError = true;
-      return opi;
-    }
+  ProtocolInfo get_protocol_info();
 
-    opi.version_major = atoi(resp["version_major"].c_str());
-    opi.version_minor = atoi(resp["version_minor"].c_str());
-    opi.protocol_name = resp["protocol_name"];
-
-    return opi;
-  }
-
-  template <typename... Ts>
   bool set_parameter(const std::initializer_list<param_type> params)
   {
     if (http_interface)
@@ -345,35 +313,11 @@ public:
     return get_request("get_parameter", { ts... }, { KV("list", ts...) });
   }
 
-  std::int64_t get_parameter_int(const std::string param)
-  {
-    std::map<std::string, std::string> resp = get_parameter(param);
-    if (resp.empty())
-    {
-      return std::numeric_limits<std::int64_t>::quiet_NaN();
-    }
-    return to_long(resp[param]);
-  }
+  std::int64_t get_parameter_int(const std::string param);
 
-  float get_parameter_float(const std::string param)
-  {
-    std::map<std::string, std::string> resp = get_parameter(param);
-    if (resp.empty())
-    {
-      return std::numeric_limits<float>::quiet_NaN();
-    }
-    return to_float(resp[param]);
-  }
+  float get_parameter_float(const std::string param);
 
-  std::string get_parameter_str(const std::string param)
-  {
-    std::map<std::string, std::string> resp = get_parameter(param);
-    if (resp.empty())
-    {
-      return std::string("");
-    }
-    return resp[param];
-  }
+  std::string get_parameter_str(const std::string param);
 
   template <typename... Ts>
   bool reset_parameter(const Ts&... ts)
@@ -381,96 +325,17 @@ public:
     return get_request_bool("reset_parameter", { "" }, { KV("list", ts...) });
   }
 
-  void request_handle_tcp(const std::string port = "", const std::string packet_type = "")
-  {
-    param_map_type query;
-    if (!port.empty())
-    {
-      query["port"] = port;
-    }
-    else if (info_->port != "0")
-    {
-      query["port"] = info_->port;
-    }
-    if (!packet_type.empty())
-    {
-      query["packet_type"] = packet_type;
-    }
-    else
-    {
-      query["packet_type"] = config_->packet_type;
-    }
-    auto resp = get_request("request_handle_tcp", { "handle", "port" }, query);
+  void request_handle_tcp(const std::string port = "", const std::string packet_type = "");
 
-    info_->handle = resp["handle"];
-    info_->port = resp["port"];
+  virtual void request_handle_udp(const std::string packet_type = "");
 
-    // TODO: port and pkt_type should be updated in config_
-  }
+  virtual void get_scanoutput_config(std::string handle);
 
-  virtual void request_handle_udp(const std::string packet_type = "")
-  {
-    param_map_type query = { KV("address", info_->endpoint), KV("port", info_->port) };
-    if (!packet_type.empty())
-    {
-      query["packet_type"] = packet_type;
-    }
-    else
-    {
-      query["packet_type"] = config_->packet_type;
-    }
-    auto resp = get_request("request_handle_udp", { "handle", "port" }, query);
-    info_->handle = resp["handle"];
-  }
+  bool set_scanoutput_config(std::string handle, ScanConfig config);
 
-  virtual void get_scanoutput_config(std::string handle)
-  {
-    auto resp = get_request(
-        "get_scanoutput_config",
-        { "start_angle", "packet_type", "watchdogtimeout", "skip_scans", "watchdog", "max_num_points_scan" },
-        { KV("handle", handle) });
-    config_->packet_type = resp["packet_type"];
-    config_->start_angle = to_long(resp["start_angle"]);
-    config_->watchdogtimeout = to_long(resp["watchdogtimeout"]);
-    config_->watchdog = (resp["watchdog"] == "off") ? false : true;
-    config_->skip_scans = to_long(resp["skip_scans"]);
-    config_->max_num_points_scan = to_long(resp["max_num_points_scan"]);
-  }
+  void update_scanoutput_config();
 
-  bool set_scanoutput_config(std::string handle, ScanConfig config)
-  {
-    param_map_type query = { KV("handle", handle),
-                             KV("start_angle", config.start_angle),
-                             KV("packet_type", config.packet_type),
-                             KV("max_num_points_scan", config.max_num_points_scan),
-                             KV("watchdogtimeout", config.watchdogtimeout),
-                             KV("skip_scans", config.skip_scans),
-                             KV("watchdog", config.watchdog ? "on" : "off") };
-    auto resp = get_request("set_scanoutput_config", { "" }, query);
-
-    // update global config_
-    get_scanoutput_config(handle);
-    read_scan_parameters();
-    return true;
-  }
-
-  void update_scanoutput_config()
-  {
-    if (http_interface)
-    {
-      param_map_type query = { KV("handle", info_->handle),
-                               KV("start_angle", config_->start_angle),
-                               KV("packet_type", config_->packet_type),
-                               KV("max_num_points_scan", config_->max_num_points_scan),
-                               KV("watchdogtimeout", config_->watchdogtimeout),
-                               KV("skip_scans", config_->skip_scans),
-                               KV("watchdog", config_->watchdog ? "on" : "off") };
-      auto resp = get_request("set_scanoutput_config", { "" }, query);
-
-      // recalculate scan params
-      read_scan_parameters();
-    }
-  }
+  void set_scanoutput_parameters(const param_map_type &params);
 
   bool start_scanoutput()
   {
