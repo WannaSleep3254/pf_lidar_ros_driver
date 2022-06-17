@@ -44,7 +44,6 @@ bool PFSDPBase::reconfig_callback_impl(const std::vector<rclcpp::Parameter>& par
     }
     else if (parameter.get_name() == "transport")
     {
-      // selecting TCP as default if not UDP
       std::string transport_str = parameter.as_string();
       info_->handle_type = transport_str == "udp" ? HandleInfo::HANDLE_TYPE_UDP : HandleInfo::HANDLE_TYPE_TCP;
     }
@@ -204,6 +203,12 @@ void PFSDPBase::declare_critical_parameters()
   descriptorPort.name = "Initial IP port";
   descriptorPort.description = "See address";
   node_->declare_parameter<int>("port", 0, descriptorPort);
+
+  rcl_interfaces::msg::ParameterDescriptor descriptorTransport;
+  descriptorTransport.name = "IP transport port";
+  descriptorTransport.description = "Can be either tcp or udp";
+  descriptorTransport.read_only = true;
+  node_->declare_parameter<std::string>("transport", "tcp", descriptorTransport);
 }
 
 void PFSDPBase::update_scanoutput_config()
