@@ -335,7 +335,7 @@ public:
 
   void update_scanoutput_config();
 
-  void set_scanoutput_parameters(const param_map_type &params);
+  void set_scanoutput_parameters(const param_map_type& params);
 
   bool start_scanoutput()
   {

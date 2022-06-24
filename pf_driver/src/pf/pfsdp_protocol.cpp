@@ -96,7 +96,7 @@ bool PFSDPBase::init()
   // Declare other common parameters
   declare_common_parameters();
 
-  //update_scanoutput_config();
+  // update_scanoutput_config();
 
   return true;
 }
@@ -248,10 +248,10 @@ bool PFSDPBase::set_scanoutput_config(std::string handle, ScanConfig config)
 
 void PFSDPBase::get_scanoutput_config(std::string handle)
 {
-  auto resp = get_request(
-                "get_scanoutput_config",
-  { "start_angle", "packet_type", "watchdogtimeout", "skip_scans", "watchdog", "max_num_points_scan" },
-  { KV("handle", handle) });
+  auto resp =
+      get_request("get_scanoutput_config",
+                  { "start_angle", "packet_type", "watchdogtimeout", "skip_scans", "watchdog", "max_num_points_scan" },
+                  { KV("handle", handle) });
   config_->packet_type = resp["packet_type"];
   config_->start_angle = to_long(resp["start_angle"]);
   config_->watchdogtimeout = to_long(resp["watchdogtimeout"]);
@@ -260,9 +260,9 @@ void PFSDPBase::get_scanoutput_config(std::string handle)
   config_->max_num_points_scan = to_long(resp["max_num_points_scan"]);
 }
 
-void PFSDPBase::set_scanoutput_parameters(const param_map_type &params)
+void PFSDPBase::set_scanoutput_parameters(const param_map_type& params)
 {
-  param_map_type query{ {"handle", info_->handle} };
+  param_map_type query{ { "handle", info_->handle } };
   query.insert(params.begin(), params.end());
   get_request("set_scanoutput_config", { "" }, query);
   read_scan_parameters();
@@ -357,7 +357,9 @@ ProtocolInfo PFSDPBase::get_protocol_info()
   return opi;
 }
 
-const std::map<std::string, std::string> PFSDPBase::get_request(const std::string command, std::vector<std::string> json_keys, const param_map_type query)
+const std::map<std::string, std::string> PFSDPBase::get_request(const std::string command,
+                                                                std::vector<std::string> json_keys,
+                                                                const param_map_type query)
 {
   const std::string err_code = "error_code";
   const std::string err_text = "error_text";
@@ -374,7 +376,8 @@ const std::map<std::string, std::string> PFSDPBase::get_request(const std::strin
   return json_resp;
 }
 
-bool PFSDPBase::get_request_bool(const std::string command, std::vector<std::string> json_keys, std::initializer_list<param_type> query)
+bool PFSDPBase::get_request_bool(const std::string command, std::vector<std::string> json_keys,
+                                 std::initializer_list<param_type> query)
 {
   std::map<std::string, std::string> resp = get_request(command, json_keys, query);
   if (resp.empty())
